@@ -1,0 +1,36 @@
+log_format  for_uri  '$request_uri';
+
+server {
+  listen 80;
+  server_name localhost;
+
+  root /var/www/html;
+
+  # [1]
+  # Matching all requests, but will use as last if no match are found.
+  location / {
+    access_log  /var/log/nginx/1.log  for_uri;
+    index index.html;
+  }
+
+  # [2]
+  location /images/ {
+    access_log  /var/log/nginx/2.log  for_uri;
+    # alias /var/www/html/images/; #(<) with or without this search location is the same.
+  }
+
+  # [3]
+  location ^~ /images_a/ {
+    access_log  /var/log/nginx/3.log  for_uri;
+    alias /var/www/html/location_regex/;
+  }
+
+  #[4]
+  #(v) Match when $request_uri end with .gif .jpg or .jpeg (case-insensitive)
+  location ~* \.(gif|jpg|jpeg)$ {
+    access_log  /var/log/nginx/4.log  for_uri;
+    root /var/www/html/type_regex/;
+    # alias /var/www/html/type_regex/; #(<) This is wrong and not working.
+  }
+
+}
